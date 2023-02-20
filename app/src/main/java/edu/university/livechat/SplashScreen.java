@@ -1,21 +1,25 @@
 package edu.university.livechat;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 
-import androidx.appcompat.app.AppCompatActivity;
 
 import edu.university.livechat.ui.login.LoginActivity;
 
-public class SplashScreen extends AppCompatActivity {
+@SuppressLint("CustomSplashScreen")
+public class SplashScreen extends Activity {
      @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         //setContentView(R.layout);
-         new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashScreen.this, LoginActivity.class));
-            finish();
-         },2000);
+         try {
+             Thread.sleep(750);
+         } catch (InterruptedException e) {
+             throw new RuntimeException(e);
+         }
+         startActivity(new Intent(SplashScreen.this, LoginActivity.class));
+        finish();
     }
 }

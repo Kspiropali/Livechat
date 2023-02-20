@@ -7,14 +7,10 @@ import edu.university.livechat.data.model.LoggedInUser;
  * maintains an in-memory cache of login status and user credentials information.
  */
 public class LoginRepository {
-
+    private LoggedInUser user;
     private static volatile LoginRepository instance;
 
-    private LoginDataSource dataSource;
-
-    // If user credentials will be cached in local storage, it is recommended it be encrypted
-    // @see https://developer.android.com/training/articles/keystore
-    private LoggedInUser user = null;
+    private final LoginDataSource dataSource;
 
     // private constructor : singleton access
     private LoginRepository(LoginDataSource dataSource) {
@@ -39,12 +35,19 @@ public class LoginRepository {
 
     private void setLoggedInUser(LoggedInUser user) {
         this.user = user;
-        // If user credentials will be cached in local storage, it is recommended it be encrypted
-        // @see https://developer.android.com/training/articles/keystore
     }
 
     public Result<LoggedInUser> login(String username, String password) {
-        // handle login
+        // Http post method for login
+        Result<LoggedInUser> result = dataSource.login(username, password);
+        if (result instanceof Result.Success) {
+            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+        }
+        return result;
+    }
+
+    public Result<LoggedInUser> register(String username, String password) {
+        // Http post method for register
         Result<LoggedInUser> result = dataSource.login(username, password);
         if (result instanceof Result.Success) {
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
