@@ -13,26 +13,88 @@
     tools:context=".ui.login.LoginActivity">
 
 
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/chat_main_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.626"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/livechat_logo" />
+
     <EditText
-        android:allowUndo="true"
-        android:id="@+id/username"
+        android:id="@+id/password"
+        android:cursorVisible="true"
+        android:textCursorDrawable="@color/black"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="295dp"
+        android:layout_marginTop="392dp"
+        android:allowUndo="true"
+        android:alpha="0.62"
+        android:autofillHints="password"
+        android:background="@color/material_dynamic_neutral_variant100"
+        android:hint="@string/prompt_password"
+        android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:selectAllOnFocus="true"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="VisualLintTextFieldSize" />
+
+    <EditText
+        android:cursorVisible="true"
+        android:textCursorDrawable="@color/black"
+        android:id="@+id/email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:allowUndo="false"
         android:alpha="0.62"
         android:autofillHints="@string/prompt_email"
         android:background="@color/material_dynamic_neutral_variant100"
         android:hint="@string/prompt_email"
+        android:imeOptions="actionDone"
         android:inputType="textEmailAddress"
         android:minHeight="48dp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/username"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="VisualLintTextFieldSize" />
+
+    <EditText
+        android:id="@+id/username"
+        android:cursorVisible="true"
+        android:textCursorDrawable="@color/black"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="295dp"
+        android:layout_marginBottom="5dp"
+        android:allowUndo="true"
+        android:alpha="0.62"
+        android:autofillHints="username"
+        android:background="@color/material_dynamic_neutral_variant100"
+        android:hint="@string/prompt_username"
+        android:inputType="textEmailAddress"
+        android:minHeight="48dp"
         android:selectAllOnFocus="true"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@color/black"
-        tools:ignore="VisualLintTextFieldSize"
-        android:textColorHint="@color/black"/>
+        app:layout_constraintVertical_bias="0.7"
+        tools:ignore="VisualLintTextFieldSize" />
 
     <Button
         android:id="@+id/login"
@@ -48,42 +110,21 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password"
-        app:layout_constraintVertical_bias="0.0"/>
+        app:layout_constraintVertical_bias="0.0" />
 
-    <EditText
-        android:allowUndo="false"
-        android:id="@+id/password"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:alpha="0.62"
-        android:textStyle="bold"
-        android:autofillHints="@string/prompt_password"
-        android:background="@color/material_dynamic_neutral_variant100"
-        android:hint="@string/prompt_password"
-        android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        android:minHeight="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username"
-        tools:ignore="VisualLintTextFieldSize"
-        android:textColor="@color/black"
-        android:textColorHint="@color/black"/>
-
-    <ProgressBar
-        android:id="@+id/loading"
+    <TextView
+        android:id="@+id/textView"
+        android:textCursorDrawable="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="64dp"
-        android:layout_marginBottom="64dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/password"
-        app:layout_constraintStart_toStartOf="@+id/password"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3" />
+        android:layout_marginTop="205dp"
+        android:textSize="22sp"
+        android:textColor="@color/white"
+        android:text="@string/livechat_application"
+        app:layout_constraintBottom_toTopOf="@+id/email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageView2" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

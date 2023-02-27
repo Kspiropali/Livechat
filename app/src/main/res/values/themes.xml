@@ -18,14 +18,17 @@
         <item name="android:windowBackground">@drawable/splash_image</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>
+
     <style name="Theme.Livechat.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="Theme.Livechat.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="Theme.Livechat.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/black</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/baseline_chat_24</item>
         <item name="windowSplashScreenAnimationDuration">200</item>
@@ -34,4 +37,13 @@
         <item name="postSplashScreenTheme">@drawable/splash_image</item>
 
     </style>
+
+    <style name="Theme.App.Starting.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.App.Starting.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.App.Starting.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
