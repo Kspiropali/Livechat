@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import edu.university.livechat.register;
 
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ public class LoginActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Intent chatPage = new Intent(this, ChatPage.class);
-
+        Intent registerPage = new Intent(this, register.class);
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -45,14 +46,14 @@ public class LoginActivity extends Activity {
             //Toast.makeText(getApplicationContext(), "Welcome", Toast.LENGTH_SHORT).show();
             try {
                 String check = new RequestTask().run("asd");
-                if(Objects.equals(check, "Success")){
-                    //TODO:Save to user repository
-
-                    startActivity(chatPage);
-                } else {
-                    Toast.makeText(this, "Unsuccessful login", Toast.LENGTH_SHORT).show();
-                }
-
+//                if(Objects.equals(check, "Success")){
+//                    //TODO:Save to user repository
+//
+//                    startActivity(chatPage);
+//                } else {
+//                    Toast.makeText(this, "Unsuccessful login", Toast.LENGTH_SHORT).show();
+//                }
+                startActivity(registerPage);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

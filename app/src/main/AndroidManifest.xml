@@ -18,6 +18,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".register"
+            android:exported="false"
+            android:label="@string/title_activity_register"
+            android:theme="@style/Theme.App.Starting.NoActionBar" />
+        <activity
             android:name=".ui.chat.ChatPage"
             android:exported="false" />
         <activity
