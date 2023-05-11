@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-
 import edu.university.livechat.ui.login.LoginActivity;
 
 @SuppressLint("CustomSplashScreen")

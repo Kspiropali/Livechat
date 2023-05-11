@@ -11,12 +11,14 @@
         android:layout_height="556dp">
 
         <LinearLayout
+            android:id="@+id/linearLayout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <include
                 layout="@layout/others_message"
+                android:id="@+id/others_message1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
@@ -24,12 +26,14 @@
 
             <include
                 layout="@layout/my_message"
+                android:id="@+id/my_message1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/cardview_default_radius" />
 
             <include
                 layout="@layout/my_message"
+                android:id="@+id/my_message2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/cardview_default_radius" />
