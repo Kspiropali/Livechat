@@ -14,7 +14,7 @@ public class SplashScreen extends Activity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout);
         try {
-            Thread.sleep(750);
+            Thread.sleep(550);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

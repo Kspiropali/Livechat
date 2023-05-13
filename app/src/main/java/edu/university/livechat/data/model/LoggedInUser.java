@@ -6,24 +6,24 @@ package edu.university.livechat.data.model;
 
 public class LoggedInUser {
 
-    private String userId;
+    private String token;
     private String displayName;
 
-    public LoggedInUser(String userId, String displayName) {
-        this.userId = userId;
+    public LoggedInUser(String token, String displayName) {
+        this.token = token;
         this.displayName = displayName;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserId(String token) {
+        this.token = token;
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getToken() {
+        return token;
     }
 
     public String getDisplayName() {
