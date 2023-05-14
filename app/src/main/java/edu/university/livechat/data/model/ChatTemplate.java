@@ -2,6 +2,7 @@ package edu.university.livechat.data.model;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,6 +29,8 @@ public class ChatTemplate {
         // Create the TextView
         TextView textView = new TextView(context);
         textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        textView.setGravity(Gravity.CENTER);
+        textView.setTextColor(0xFF000000);
         textView.setText(username);
         textView.setTextSize(35);
         textView.setTypeface(Typeface.DEFAULT_BOLD);

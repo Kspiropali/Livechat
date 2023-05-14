@@ -41,23 +41,28 @@ public class LoginActivity extends Activity {
         final Button loginButton = binding.login;
 
 
-
         // check if user is already logged in
         String token = keyStoreHelper.getLatestToken();
         if (token != null) {
-            try {
-                Thread.sleep(550);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            String username = token.split(":")[0];
-            finish();
-            toast.setText("Welcome Back, " + username + "!");
-            toast.show();
-            chatPage.putExtra("username", username);
-            startActivity(chatPage);
-            finish();
-
+            new Thread(() -> {
+                try {
+                    String response = requestTask.loginByToken(token);
+                    if (response.equals("Logged in!")) {
+                        finish();
+                        toast.setText("Welcome Back, " + token.split(":")[0] + "!");
+                        toast.show();
+                        chatPage.putExtra("username", token.split(":")[0]);
+                        chatPage.putExtra("destinationUser", "public");
+                        startActivity(chatPage);
+                    } else {
+                        toast.setText(response);
+                        toast.show();
+                    }
+                } catch (IOException e) {
+                    toast.setText("Error: " + e.getMessage());
+                    toast.show();
+                }
+            }).start();
         }
 
 
@@ -86,13 +91,14 @@ public class LoginActivity extends Activity {
 
                         // saving token to keystore
                         keyStoreHelper.insertToken(username + ":" + password);
-
+                        finish();
                         // start activity
                         toast.setText("Welcome, " + username + "!");
                         toast.show();
-                        startActivity(chatPage);
                         chatPage.putExtra("username", username);
-                        finish();
+                        chatPage.putExtra("destinationUser", "public");
+                        startActivity(chatPage);
+
                     } else {
                         runOnUiThread(() -> {
                             usernameEditText.setText("");
@@ -102,10 +108,9 @@ public class LoginActivity extends Activity {
                         });
                     }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    toast.setText("Error: " + e.getMessage());
+                    toast.show();
                 }
             }).start();
         });

@@ -9,6 +9,9 @@
 
     <ScrollView
         android:id="@+id/scrollView1"
+        android:focusableInTouchMode="true"
+        android:scrollbarSize="0dp"
+        android:scrollY="30dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="40dp"
@@ -29,26 +32,12 @@
             <!--                android:layout_gravity="top"-->
             <!--                android:layout_margin="@dimen/cardview_default_radius" />-->
 
-            <!--            <include-->
-            <!--                android:id="@+id/my_message1"-->
-            <!--                layout="@layout/my_message"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_margin="@dimen/cardview_default_radius" />-->
-
-            <!--            <include-->
-            <!--                android:id="@+id/my_message2"-->
-            <!--                layout="@layout/my_message"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_margin="@dimen/cardview_default_radius" />-->
-
 
         </LinearLayout>
     </ScrollView>
 
     <EditText
-        android:id="@+id/editTextTextPersonName2"
+        android:id="@+id/chatBoxMessage"
         android:layout_width="357dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -64,6 +53,7 @@
         tools:ignore="LabelFor" />
 
     <Button
+        android:id="@+id/sendButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="bottom|end"

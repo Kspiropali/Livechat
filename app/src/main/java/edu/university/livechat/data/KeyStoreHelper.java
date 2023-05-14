@@ -51,7 +51,7 @@ public class KeyStoreHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             cursor.close();
         }
-        db.close();
+//        db.close();
         return token;
     }
 

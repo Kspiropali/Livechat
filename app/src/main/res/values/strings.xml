@@ -40,4 +40,5 @@
     <string name="title_activity_about_us">AboutUsActivity</string>
     <string name="this_is_a_button">this is a button</string>
     <string name="type_a_message">Type a message</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>

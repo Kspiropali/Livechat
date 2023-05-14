@@ -10,8 +10,8 @@
         android:id="@+id/messageDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:paddingStart="8dp"
+        android:layout_marginTop="4dp"
+        android:paddingStart="50dp"
         android:paddingTop="4dp"
         android:paddingEnd="8dp"
         android:paddingBottom="4dp"
@@ -20,10 +20,44 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="53dp" />
 
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="26dp"
+        android:src="@drawable/user"
+        app:layout_constraintEnd_toStartOf="@+id/messagePurpleBox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="26dp"
+        android:gravity="center"
+        android:text="You"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/messagePurpleBox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/arrow_right"
+        android:layout_marginLeft="48dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/messagePurpleBox"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/messagePurpleBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="65dp"
         app:cardBackgroundColor="#774df2"
         app:cardCornerRadius="12dp"
         app:cardElevation="0dp"
@@ -42,12 +76,15 @@
                 android:id="@+id/messageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="fill"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:layout_marginBottom="8dp"
                 android:maxWidth="260dp"
                 android:paddingLeft="12dp"
                 android:paddingTop="8dp"
                 android:paddingRight="12dp"
-                android:text="This is a Message"
+                android:text="saaol"
                 android:textColor="#ffffff"
                 android:textSize="16sp" />
         </LinearLayout>
