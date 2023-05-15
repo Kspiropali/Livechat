@@ -37,7 +37,12 @@ public class KeyStoreHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_TOKEN, token);
-        db.insert(TABLE_NAME, null, values);
+        try {
+            db.insertOrThrow(TABLE_NAME, null, values);
+        } catch (Exception e) {
+            // SQLiteConstraintException
+            // token is already in the database, no need to do anything
+        }
         db.close();
     }
 

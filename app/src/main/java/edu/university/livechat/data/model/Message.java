@@ -15,10 +15,11 @@ public class Message {
     }
 
 
-    public Message(String content, String sender, String destination, String timestamp) {
+    public Message(String content, String sender, String destination, String timestamp, String type) {
         this.content = content;
         this.sender = sender;
         this.destination = destination;
+        this.type = type;
 
         //timestamp is of format 2023-05-13T19:02:21.032+00:00
         // convert it to Month Day, Time:minutes AM/PM

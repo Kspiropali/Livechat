@@ -43,6 +43,7 @@ dependencies {
     // for http connections
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
+    // core android dependencies
     implementation 'androidx.annotation:annotation:1.6.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-splashscreen:1.0.1'
@@ -52,7 +53,4 @@ dependencies {
 
     // needed for parsing of json
     implementation 'com.google.code.gson:gson:2.8.9'
-
-    implementation 'androidx.preference:preference:1.2.0'
-
 }

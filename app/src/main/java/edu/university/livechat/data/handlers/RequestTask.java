@@ -1,20 +1,16 @@
 package edu.university.livechat.data.handlers;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 import edu.university.livechat.data.model.Message;
+import edu.university.livechat.data.model.User;
 import okhttp3.Call;
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,8 +26,11 @@ public final class RequestTask {
     private static final String GET_REGISTERED_USERS = "download/chat/registeredUsers";
     private static final String GET_MESSAGES = "download/chat/";
     private static final MediaType jsonType = MediaType.parse("application/json");
+    private static final String UPDATE_URL = "user/update";
+    private static final String GET_USER_DETAILS = "user/details";
 
     // register a user api call
+    @SuppressWarnings("deprecation")
     public String registerPostRequest(String email, String username, String firstName, String lastName, String password) throws IOException {
         Response response;
 
@@ -178,9 +177,9 @@ public final class RequestTask {
         return response.body().string();
     }
 
-    public ArrayList<Message> downloadMessages(String username, String destination, String token) throws IOException {
+    public ArrayList<Message> downloadMessages(String destination, String token) throws IOException {
         Response response;
-        if (token == null){
+        if (token == null) {
             return null;
         }
         String encoded = android.util.Base64.encodeToString((token).getBytes(), android.util.Base64.NO_WRAP);
@@ -210,7 +209,7 @@ public final class RequestTask {
                 JSONArray jsonArray = new JSONArray(response.body().string());
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    messages.add(new Message(jsonObject.getString("content"), jsonObject.getString("sender"), jsonObject.getString("destination"), jsonObject.getString("time")));
+                    messages.add(new Message(jsonObject.getString("content"), jsonObject.getString("sender"), jsonObject.getString("destination"), jsonObject.getString("time"), jsonObject.getString("type")));
                 }
 
                 return messages;
@@ -224,11 +223,12 @@ public final class RequestTask {
         }
 
         assert response.body() != null;
-        messages.add(new Message(response.body().string()));
+        messages.add(new Message("unauthorized"));
 
         return messages;
     }
 
+    @SuppressWarnings("unused")
     public String sendMessage(String token, Message message) throws IOException {
         Response response;
         RequestBody requestBody = RequestBody.create(jsonType, new Gson().toJson(message));
@@ -263,4 +263,76 @@ public final class RequestTask {
         assert response.body() != null;
         return response.body().string();
     }
+
+    @SuppressWarnings("deprecation")
+    public String update(String token, User user) throws IOException {
+        Response response;
+        RequestBody userToUpdate = RequestBody.create(jsonType, new Gson().toJson(user));
+        //RequestBody requestBody = RequestBody.create(jsonType, new Gson().toJson(message));
+        String encoded = android.util.Base64.encodeToString((token).getBytes(), android.util.Base64.NO_WRAP);
+        Request request = new Request.Builder()
+                .header("Authorization", "Basic " + encoded)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "application/json")
+                .addHeader("User-Agent", "Android")
+                .addHeader("Access-Control-Allow-Origin", "*")
+                .addHeader("Access-Control-Allow-Methods", "GET, POST")
+                .addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept")
+                .addHeader("Access-Control-Allow-Credentials", "true")
+                .addHeader("Access-Control-Max-Age", "3600")
+                .url(BASE_URL + UPDATE_URL)
+                .post(userToUpdate)
+                .build();
+
+        Call call = client.newCall(request);
+
+        try {
+            response = call.execute();
+            if (response.isSuccessful()) {
+                assert response.body() != null;
+                return response.body().string();
+            }
+        } catch (IOException e) {
+            return "Server is down";
+        } catch (Exception e) {
+            return "Something went wrong";
+        }
+
+        assert response.body() != null;
+        return response.body().string();
+    }
+
+    @SuppressWarnings("deprecation")
+    public User getUserDetails(String token) throws IOException {
+        Response response;
+        String encoded = android.util.Base64.encodeToString((token).getBytes(), android.util.Base64.NO_WRAP);
+        Request request = new Request.Builder()
+                .header("Authorization", "Basic " + encoded)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "application/json")
+                .addHeader("User-Agent", "Android")
+                .addHeader("Access-Control-Allow-Origin", "*")
+                .addHeader("Access-Control-Allow-Methods", "GET, POST")
+                .addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept")
+                .addHeader("Access-Control-Allow-Credentials", "true")
+                .addHeader("Access-Control-Max-Age", "3600")
+                .url(BASE_URL + GET_USER_DETAILS)
+                .post(RequestBody.create(jsonType, ""))
+                .build();
+
+        Call call = client.newCall(request);
+        try {
+            response = call.execute();
+            if (response.isSuccessful()) {
+                assert response.body() != null;
+                return new Gson().fromJson(response.body().string(), User.class);
+            }
+        } catch (Exception e) {
+            return new User("Server is down");
+        }
+
+        assert response.body() != null;
+        return new User(response.body().string());
+    }
+
 }

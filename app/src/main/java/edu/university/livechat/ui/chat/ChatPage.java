@@ -30,8 +30,10 @@ import edu.university.livechat.data.model.MessageTemplate;
 import edu.university.livechat.databinding.ActivityChatPageBinding;
 import edu.university.livechat.ui.about.AboutApp;
 import edu.university.livechat.ui.login.LoginActivity;
+import edu.university.livechat.ui.settings.SettingsPage;
 
 public class ChatPage extends Activity {
+    // top level class variables
     private KeyStoreHelper keyStoreHelper;
     private LinearLayout messagesBox;
     private final RequestTask requestTask = new RequestTask();
@@ -40,6 +42,8 @@ public class ChatPage extends Activity {
     private TableLayout onlineUsersTable;
     private Intent chatPage;
     private EditText messageBox;
+    // global thread to help with requests
+    private Thread mainThread;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -54,68 +58,115 @@ public class ChatPage extends Activity {
 
         // get online users table in the nav drawer
         onlineUsersTable = binding.navView.getHeaderView(0).findViewById(R.id.onlineUsersTable);
+
         // get navigation drawer
         NavigationView drawer = binding.navView;
         ScrollView scrollView = findViewById(R.id.scrollView1);
         messagesBox = scrollView.findViewById(R.id.chatMessages);
+
         // login and about page intents
         Intent loginPage = new Intent(this, LoginActivity.class);
         Intent aboutPage = new Intent(this, AboutApp.class);
-        // TODO: account settings intent
+        Intent settingsPage = new Intent(this, SettingsPage.class);
+
         // key store helper to get the token
         keyStoreHelper = new KeyStoreHelper(getApplicationContext());
+
         // user and destination user
         username = getIntent().getStringExtra("username");
         destinationUser = getIntent().getStringExtra("destinationUser");
+
+        // setting up the top chatroom destination name
+        // get the currentlyConnectedToTextView in top_bar_menu, set the text to the destination user
+        TextView currentlyConnectedToTextView = findViewById(R.id.currentlyConnectedToTextView);
+        currentlyConnectedToTextView.setText(destinationUser);
+
         //chat-page intent to switch rooms
         chatPage = new Intent(this, ChatPage.class);
+
         // chat box message and the string
         messageBox = findViewById(R.id.chatBoxMessage);
 
-
-        // create a thread to run every second, without using handler
-        Thread mainThread = new Thread(() -> {
+        // reuse the global thread to run every second, without deprecated handlers
+        mainThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(300);
-                    ArrayList<Message> response = requestTask.downloadMessages(username, calculateRoomId(), keyStoreHelper.getLatestToken());
-                    if(response == null) {
-                        break;
+                    Thread.sleep(350);
+                    // get the messages from the server
+                    ArrayList<Message> response = requestTask.downloadMessages(calculateRoomId(), keyStoreHelper.getLatestToken());
+
+                    // if the response is null or the server is down, go back to login page
+                    if (response == null || response.size() == 0) {
+                        continue;
                     }
+
+                    // if the response is unauthorized, or offline go back to login page
+                    if (response.get(0).getContent().equals("Server is down") || response.get(0).getContent().equals("unauthorized")) {
+                        runOnUiThread(() -> {
+                            //Toast.makeText(getApplicationContext(), "Server connection lost!", Toast.LENGTH_LONG).show();
+                            startActivity(loginPage);
+                            finish();
+                        });
+                    }
+
+                    //count the messages in the chatroom
                     int currentMessageCount = messagesBox.getChildCount();
+                    // count the messages in the server
                     int serverMessageCount = response.size();
+                    // if the messages are the same, no need to add them again
+                    if (currentMessageCount == serverMessageCount) {
+                        continue;
+                    }
+
                     runOnUiThread(() -> {
-                        for (int i = currentMessageCount; i < serverMessageCount; i++) {
-                            if (response.get(i).getSender().equals(username)) {
+                        // add the new message/s to the chatroom
+                        try {
+                            for (int i = currentMessageCount; i < serverMessageCount; i++) {
                                 int finalI = i;
-                                runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), response.get(finalI).getContent(), true, response.get(finalI).getTimestamp(),
-                                        response.get(finalI).getSender())));
-                                continue;
+                                // if the message is from the user, add it to the right side of the screen
+                                if (response.get(finalI).getSender().equals(username)) {
+                                    runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), response.get(finalI).getContent(), true, response.get(finalI).getTimestamp(),
+                                            response.get(finalI).getSender(), response.get(finalI).getType())));
+
+                                } else {
+                                    // if the message is from the destination user, add it to the left side of the screen
+                                    runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), response.get(finalI).getContent(), false, response.get(finalI).getTimestamp(),
+                                            response.get(finalI).getSender(), response.get(finalI).getType())));
+                                }
+
                             }
-                            int finalI1 = i;
-                            runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), response.get(finalI1).getContent(), false, response.get(finalI1).getTimestamp(),
-                                    response.get(finalI1).getSender())));
+                        } catch (Exception e) {
+                            // if the server is down, go back to login page
+//                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                            startActivity(loginPage);
+                            finish();
                         }
 
                     });
-                } catch (InterruptedException | IOException e) {
+                } catch (InterruptedException e) {
+                    // If the thread is interrupted, break out of the loop
+                    return;
+                } catch (IOException e) {
+                    // generic IO exception
                     e.printStackTrace();
                 }
             }
         });
+        // start the thread
         mainThread.start();
 
         // set username in drawer
-        TextView usernameTextView = binding.navView.getHeaderView(0).findViewById(R.id.loggedInUser);
+        TextView usernameTextView = binding.navView.getHeaderView(0).findViewById(R.id.logged_user_text);
         usernameTextView.setText("Currently logged in as: " + username);
 
         // hide drawer
         drawer.setVisibility(View.GONE);
+
         // getting all registered users in the system
         getOnlineUsers();
+
         // setting up the current chatroom's history
         downloadSetMessageHistory();
-//        messageBox.requestFocus();
 
         //////////////////////EVENT LISTENERS////////////////////////
         // get settings button and set its listener
@@ -125,6 +176,7 @@ public class ChatPage extends Activity {
             }
         });
 
+        // get settings button and set its listener
         ImageView settingsButton = binding.topBarMenu.settingsImageButton;
         settingsButton.setOnClickListener(v -> {
             if (drawer.getVisibility() == View.VISIBLE) {
@@ -142,9 +194,9 @@ public class ChatPage extends Activity {
             // close drawer
             drawer.setVisibility(View.GONE);
             // go to account settings page
-            // TODO: account settings page
+            startActivity(settingsPage);
+            finish();
         });
-
 
         // get the about this project button and set its listener
         TextView aboutThisProjectButton = binding.navView.getHeaderView(0).findViewById(R.id.aboutThisProjectPage);
@@ -160,13 +212,13 @@ public class ChatPage extends Activity {
         logoutButton.setOnClickListener(v -> {
             // close drawer
             drawer.setVisibility(View.GONE);
-            // stop download messages thread
-            mainThread.interrupt();
 
             // Delete token from database
             keyStoreHelper.deleteAllTokens();
+
             // clear the chat history
             messagesBox.removeAllViews();
+
             // clear username and destination user
             username = "";
             destinationUser = "";
@@ -179,19 +231,21 @@ public class ChatPage extends Activity {
         // get the public chatroom button and set its listener
         LinearLayout publicChatroomButton = binding.navView.getHeaderView(0).findViewById(R.id.publicRoom);
         publicChatroomButton.setOnClickListener(v -> {
-            if (destinationUser.equals("public")) {
-                // close drawer
-                drawer.setVisibility(View.GONE);
-                return;
-            }
             // close drawer
             drawer.setVisibility(View.GONE);
-            // go to public chatroom page
+            // if we are already in the public chatroom, no need to reload it
+            if (destinationUser.equals("public")) {
+                return;
+            }
+
+            // if we are not in public chatroom, go to public chatroom page
             chatPage.putExtra("username", username);
             chatPage.putExtra("destinationUser", "public");
+            // send SIGINT to the main thread
+            mainThread.interrupt();
+            //start the new activity with the new destination user
             startActivity(chatPage);
             finish();
-
         });
 
         // get the send message button and set its listener
@@ -208,10 +262,16 @@ public class ChatPage extends Activity {
             // send message
             new Thread(() -> {
                 try {
+                    // calculate the current date
                     @SuppressLint("SimpleDateFormat") String dateNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                     Message messageToSend = new Message(username, message);
+                    // type is always CHAT, TODO: IMAGE & RECORDING
                     messageToSend.setType("CHAT");
+
+                    //calculate the room id of the destination user and set it as the destination of the message
                     messageToSend.setDestination(calculateRoomId());
+
+                    // send message to the server
                     requestTask.sendMessage(keyStoreHelper.getLatestToken(), messageToSend);
 
                     // add message to the chat history
@@ -220,94 +280,128 @@ public class ChatPage extends Activity {
                         addMessageToChatHistory(message, dateNow);
                     });
                 } catch (IOException e) {
+                    // generic IO exception
                     e.printStackTrace();
                 }
             }).start();
         });
         ////////////////////////////////////////////////////////////////////////////////////////
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // send SIGINT to the main thread, if activity is destroyed
+        mainThread.interrupt();
     }
 
     private void getOnlineUsers() {
         // get all registered users, add them in the drawer
         new Thread(() -> {
             try {
+                // send POST request to the server to get all registered users
                 String response = requestTask.getRegisteredUsers(keyStoreHelper.getLatestToken());
-                // String is of type: ["bob","sam","john"], remove string literals [] from the string
+
+                // String is of type: ["bob","sam","john"], so we need to remove the [ and ] and split by ,
                 String[] users = response.substring(1, response.length() - 1).split(",");
+
                 // remove all left string literals "" from the array
                 Arrays.setAll(users, i -> users[i].replace("\"", ""));
 
+                // get the table that holds all online users
                 for (String user : users) {
                     if (user.equals(username)) {
                         continue;
                     }
+                    // create the linear layout that holds the imageview, username and status
                     LinearLayout userView = new ChatTemplate(getApplicationContext()).getOnlineUserFrameView(user);
+                    // set the listener of the linear layout to chat rooms
                     userView.setOnClickListener(v -> {
-                        // close drawer
+                        // first close drawer
                         findViewById(R.id.nav_view).setVisibility(View.GONE);
-                        // go to chat page
+
+                        // pass the new username and destination user variables to the intent
                         chatPage.putExtra("username", username);
                         chatPage.putExtra("destinationUser", user);
+
+                        // start the new activity with the new destination user
                         startActivity(chatPage);
+
+                        // send SIGINT to the current activity's main thread
+                        mainThread.interrupt();
                         finish();
                     });
+                    // add the linear layout to the table
                     onlineUsersTable.addView(userView);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                // generic IO exception
+                e.printStackTrace();
             }
-
         }).start();
     }
 
     private void downloadSetMessageHistory() {
+        // clear the chat history if any remnants are left
         messagesBox.removeAllViews();
+
         // get all messages between the two users
         new Thread(() -> {
             try {
+                // if key is null, user is not logged in
                 if (keyStoreHelper.getLatestToken() == null) {
                     return;
                 }
-                ArrayList<Message> response = requestTask.downloadMessages(username, calculateRoomId(), keyStoreHelper.getLatestToken());
-                // check if empty
-                if (response.isEmpty()) {
+
+                // send POST request to the server to get all messages between the users
+                ArrayList<Message> response = requestTask.downloadMessages(calculateRoomId(), keyStoreHelper.getLatestToken());
+
+                // if its empty, return
+                if (response.isEmpty() || response.get(0).getType() == null) {
                     return;
                 }
+
+                // parse the messages from the response
                 for (Message message : response) {
                     if (message.getSender().equals(username)) {
+                        // if the message is from the current user, set the message to the left
                         runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), message.getContent(), true, message.getTimestamp(),
-                                message.getSender())));
-                        continue;
+                                message.getSender(), message.getType())));
+                    } else {
+                        // if the message is from the other user, set the message to the right
+                        runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), message.getContent(), false, message.getTimestamp(),
+                                message.getSender(), message.getType())));
                     }
-                    runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), message.getContent(), false, message.getTimestamp(),
-                            message.getSender())));
                 }
 
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                // generic IO exception
+                e.printStackTrace();
             }
-
         }).start();
     }
 
     private void addMessageToChatHistory(String message, String dateNow) {
         // add message to chat history
-        runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), message, true, dateNow, username)));
+        runOnUiThread(() -> messagesBox.addView(new MessageTemplate(getApplicationContext(), message, true, dateNow, username, "CHAT")));
     }
 
     private String calculateRoomId() {
-        // calculate room id
+        // with sockets, I had to calculate the room id, so that the server & users knows where
+        // to send the message, so I did it with alphabetical order, so that the room id is always the same
+        // if username>destinationUser, then room id = destinationUser+username
+        // if username<destinationUser, then room id = username+destinationUser
         if (destinationUser.equals("public")) {
-            return "public";
+            return destinationUser;
         }
+
+        // sort the two users alphabetically in an array
         String[] users = {username, destinationUser};
         Arrays.sort(users);
+
+        // return the room id
         return users[0] + users[1];
     }
+
+
 }

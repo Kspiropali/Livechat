@@ -12,13 +12,16 @@ public class SplashScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout);
+
+        // display splash screen for 450 ms
         try {
-            Thread.sleep(550);
+            Thread.sleep(450);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        //start main activity when done
         startActivity(new Intent(SplashScreen.this, LoginActivity.class));
+        // close splash activity
         finish();
     }
 }

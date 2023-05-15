@@ -15,14 +15,13 @@
         tools:layout_editor_absoluteX="-2dp" />
 
     <TextView
-        android:id="@+id/loggedInUser"
+        android:id="@+id/logged_user_text"
         android:layout_width="233dp"
         android:layout_height="31dp"
         android:layout_marginTop="25dp"
         android:layout_marginBottom="25dp"
         android:background="@drawable/rounded_textview"
         android:gravity="center"
-        android:text="Welcome user asd"
         android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/usersList"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,12 +33,14 @@
     <ScrollView
         android:id="@+id/usersList"
         android:layout_width="302dp"
-        android:layout_height="282dp"
+        android:layout_height="390dp"
         android:layout_margin="10dp"
         android:layout_marginTop="22dp"
         android:layout_marginBottom="32dp"
-        android:background="@color/white"
+
+        android:background="@color/material_dynamic_primary80"
         android:contentDescription="@string/this_is_a_list_of_users"
+        android:scrollbarSize="40dp"
         app:layout_constraintBottom_toTopOf="@+id/accountSettingsPage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/app_bar_main"
@@ -53,12 +54,14 @@
             <LinearLayout
                 android:id="@+id/publicRoom"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                tools:ignore="UseCompoundDrawables,UselessParent">
 
                 <ImageView
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:src="@drawable/public_chat" />
+                    android:src="@drawable/public_chat"
+                    android:contentDescription="@string/app_name" />
 
                 <TextView
 
@@ -66,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="10dp"
-                    android:text="Public Room"
+                    android:text="@string/public_room"
                     android:textColor="@color/black"
                     android:textSize="30sp"
                     android:textStyle="bold" />
