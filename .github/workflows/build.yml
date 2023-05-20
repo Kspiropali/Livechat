@@ -1,7 +1,7 @@
-name: Generating debug APK
+name: APK latest Build
+run-name: Build
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - master
