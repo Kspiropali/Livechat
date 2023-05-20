@@ -29,4 +29,4 @@ You can download the latest apk release in the [releases]() page.
 The release will only work for local networks, as the server is not hosted anywhere.
 
 ## License
-MIT License. See the [LICENSE](LICENSE) file for details.
+MIT License. See the [LICENSE](app/LICENSE) file for details.
