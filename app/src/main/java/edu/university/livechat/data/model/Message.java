@@ -38,12 +38,6 @@ public class Message {
         this.time = newTimestamp;
     }
 
-    public Message(String content, String sender, String destination) {
-        this.content = content;
-        this.sender = sender;
-        this.destination = destination;
-    }
-
     public Message(String destination, String message) {
         this.destination = destination;
         this.content = message;
@@ -58,7 +52,6 @@ public class Message {
     public void setId(Long id) {
         this.id = id;
     }
-
 
     public String getContent() {
         return content;

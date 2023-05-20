@@ -4,15 +4,18 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
+import edu.university.livechat.LiveChat;
 import edu.university.livechat.R;
 import mehdi.sakout.aboutpage.AboutPage;
 import mehdi.sakout.aboutpage.Element;
 
 
 public class AboutApp extends Activity {
+    private boolean change;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        change = true;
         super.onCreate(savedInstanceState);
         // create about page
         View aboutPage = new AboutPage(this)
@@ -43,7 +46,22 @@ public class AboutApp extends Activity {
                 .addGroup("Return to the main page")
                 .create();
 
-        aboutPage.findViewById(mehdi.sakout.aboutpage.R.id.about_providers).setOnClickListener(v -> finish());
+        aboutPage.findViewById(mehdi.sakout.aboutpage.R.id.about_providers).setOnClickListener(v -> {
+            change = false;
+            finish();
+        });
+
+        // set the view to the about page created above
         setContentView(aboutPage);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (change) {
+            LiveChat liveChat = (LiveChat) getApplicationContext();
+            liveChat.setAppState(getApplicationContext(),"closed");
+        }
+
+        super.onDestroy();
     }
 }

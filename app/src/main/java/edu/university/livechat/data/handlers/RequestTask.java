@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 public final class RequestTask {
     private final OkHttpClient client = new OkHttpClient();
-    private static final String BASE_URL = "http://10.0.2.2:8080/";
+    private static final String BASE_URL = "http://192.168.0.127:8080/";
     private static final String REGISTER_URL = "user/register";
     private static final String LOGIN_URL = "user/login";
     private static final String CHAT_URL = "chat/sendMessage";
@@ -107,6 +107,7 @@ public final class RequestTask {
         return response.body().string();
     }
 
+    // login by one time token instead of username password
     public String loginByToken(String token) throws IOException {
         // convert username:password to base64
         Response response;
@@ -142,6 +143,7 @@ public final class RequestTask {
         return response.body().string();
     }
 
+    // get active users
     public String getRegisteredUsers(String token) throws IOException {
         Response response;
         String encoded = android.util.Base64.encodeToString((token).getBytes(), android.util.Base64.NO_WRAP);
@@ -177,6 +179,7 @@ public final class RequestTask {
         return response.body().string();
     }
 
+    // download messages from server for a specific user in a room
     public ArrayList<Message> downloadMessages(String destination, String token) throws IOException {
         Response response;
         if (token == null) {
@@ -228,6 +231,7 @@ public final class RequestTask {
         return messages;
     }
 
+    // sends message to servers dedicated socket
     @SuppressWarnings("unused")
     public String sendMessage(String token, Message message) throws IOException {
         Response response;
@@ -264,6 +268,7 @@ public final class RequestTask {
         return response.body().string();
     }
 
+    // update the user's details
     @SuppressWarnings("deprecation")
     public String update(String token, User user) throws IOException {
         Response response;

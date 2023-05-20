@@ -3,13 +3,17 @@ package edu.university.livechat.ui.login;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.io.IOException;
 
+import edu.university.livechat.LiveChat;
 import edu.university.livechat.R;
 import edu.university.livechat.data.KeyStoreHelper;
 import edu.university.livechat.data.handlers.RequestTask;
@@ -20,9 +24,13 @@ public class LoginActivity extends Activity {
     private final RequestTask requestTask = new RequestTask();
     private Toast toast;
     private KeyStoreHelper keyStoreHelper;
+    private boolean change;
+    private ConstraintLayout loginLayout;
+    private Button notificationAllowButton;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        change = true;
         // set up activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -37,6 +45,8 @@ public class LoginActivity extends Activity {
         final EditText passwordEditText = findViewById(R.id.password_login);
         final Button registerButton = findViewById(R.id.register_page);
         final Button loginButton = findViewById(R.id.login);
+        notificationAllowButton = findViewById(R.id.enable_notifications);
+        loginLayout = findViewById(R.id.login_container);
 
         // check if user is already logged in
         String token = keyStoreHelper.getLatestToken();
@@ -53,7 +63,8 @@ public class LoginActivity extends Activity {
                         chatPage.putExtra("username", token.split(":")[0]);
                         chatPage.putExtra("destinationUser", "public");
                         startActivity(chatPage);
-                        // finish the login activity
+                        // finish the login activity, inform onDestroy that it was intentional
+                        change = false;
                         finish();
                     } else {
                         // if we get here, the token is invalid so we delete it
@@ -102,7 +113,9 @@ public class LoginActivity extends Activity {
                         chatPage.putExtra("username", username);
                         // pass the default destination user to next activity
                         chatPage.putExtra("destinationUser", "public");
+                        // start activity
                         startActivity(chatPage);
+                        change = false;
                         finish();
                     } else {
                         // credentials are bad, show error message
@@ -121,6 +134,18 @@ public class LoginActivity extends Activity {
             }).start();
         });
 
+        // notification button
+        notificationAllowButton.setOnClickListener(v -> {
+            // ask for notification permission
+            if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+                toast.setText("Please enable notifications for this app in the settings");
+                toast.show();
+                // ask for permission
+                Intent notificationSettings = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                startActivity(notificationSettings);
+            }
+        });
 
         // redirect to register page
         assert registerButton != null;
@@ -129,5 +154,25 @@ public class LoginActivity extends Activity {
             startActivity(registerPage);
         });
         ////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (change) {
+            LiveChat liveChat = (LiveChat) getApplicationContext();
+            liveChat.setAppState(getApplicationContext(), "closed");
+        }
+
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // check if permission was granted
+        if (NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            loginLayout.removeView(notificationAllowButton);
+
+        }
     }
 }

@@ -27,7 +27,6 @@
             android:layout_marginBottom="10dp"
             android:gravity="center"
             android:textColorHint="@color/material_dynamic_secondary0"
-            android:text="Username"
             android:textColor="@color/black"
             android:textSize="30sp"
             android:textStyle="bold" />

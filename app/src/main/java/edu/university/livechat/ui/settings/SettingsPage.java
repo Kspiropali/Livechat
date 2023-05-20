@@ -8,10 +8,16 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 
+import edu.university.livechat.LiveChat;
 import edu.university.livechat.R;
 import edu.university.livechat.data.KeyStoreHelper;
 import edu.university.livechat.data.handlers.RequestTask;
@@ -21,14 +27,19 @@ import edu.university.livechat.ui.chat.ChatPage;
 public class SettingsPage extends Activity {
     private final RequestTask requestTask = new RequestTask();
 
+    private boolean change;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        change = true;
         // setting up the  settings-page
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_page);
+        TextView usernameDisplay = findViewById(R.id.username);
+        usernameDisplay.setText(getIntent().getStringExtra("username"));
 
         // getting the token for authentication from secret storage
-        String token = new KeyStoreHelper(getApplicationContext()).getLatestToken();
+        @SuppressWarnings("resource") String token = new KeyStoreHelper(getApplicationContext()).getLatestToken();
 
         // setting login page intent to redirect to it
         Intent chatPage = new Intent(this, ChatPage.class);
@@ -107,7 +118,10 @@ public class SettingsPage extends Activity {
             // go back to the previous page
             chatPage.putExtra("username", token.split(":")[0]);
             chatPage.putExtra("destinationUser", "public");
+            // start chat page activity
             startActivity(chatPage);
+            // notify onDestroy() that the activity is finished intentionally
+            change = false;
             finish();
         });
 
@@ -121,12 +135,6 @@ public class SettingsPage extends Activity {
             String countrySelected = dropdown.getSelectedItem().toString();
             boolean checkBoxChecked = checkBox.isChecked();
 
-            // check if the passwords match
-            if (!password.equals(confirmPassword)) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             // check if the fields are empty
             if (firstName.isEmpty() || lastName.isEmpty() || phoneNumber.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "Please fill all the fields", Toast.LENGTH_SHORT).show();
@@ -136,6 +144,12 @@ public class SettingsPage extends Activity {
             // check if the phone number is 10 digits
             if (phoneNumber.length() != 10) {
                 Toast.makeText(this, "Phone number must be 10 digits", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // check if the passwords match
+            if (!password.equals(confirmPassword)) {
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -154,6 +168,7 @@ public class SettingsPage extends Activity {
                             chatPage.putExtra("destinationUser", "public");
                             startActivity(chatPage);
                             // finish the current activity
+                            change = false;
                             finish();
                         });
                     } else {
@@ -166,5 +181,15 @@ public class SettingsPage extends Activity {
                 }
             }).start();
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        // if the activity is finished intentionally, do not show the toast
+        if (change) {
+            LiveChat liveChat = (LiveChat) getApplicationContext();
+            liveChat.setAppState(getApplicationContext(),"closed");
+        }
+        super.onDestroy();
     }
 }

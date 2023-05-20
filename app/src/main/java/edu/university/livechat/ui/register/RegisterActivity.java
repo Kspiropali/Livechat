@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import edu.university.livechat.LiveChat;
 import edu.university.livechat.R;
 import edu.university.livechat.data.handlers.RequestTask;
 
@@ -17,9 +18,11 @@ public class RegisterActivity extends Activity {
     // regex username string, characters only
     private static final String USERNAME_REGEX = "^[A-Za-z]+$";
     private static final RequestTask requestTask = new RequestTask();
+    private boolean change;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        change = true;
         // setting up the activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
@@ -36,7 +39,10 @@ public class RegisterActivity extends Activity {
         final EditText passwordEditText = findViewById(R.id.register_user_password);
 
         // redirect back to login page
-        loginRedirect.setOnClickListener(v -> finish());
+        loginRedirect.setOnClickListener(v -> {
+            change = false;
+            finish();
+        });
 
         // register button listener
         registerButton.setOnClickListener(v -> {
@@ -59,7 +65,6 @@ public class RegisterActivity extends Activity {
                 return;
             }
 
-
             new Thread(() -> {
                 try {
                     // send register request to the backend server, on a new thread
@@ -68,6 +73,7 @@ public class RegisterActivity extends Activity {
                         runOnUiThread(() -> {
                             // register success, redirect back to login page
                             Toast.makeText(this, "Register success! A verification email will be sent shortly!", Toast.LENGTH_SHORT).show();
+                            change = false;
                             finish();
                         });
                     } else {
@@ -82,5 +88,15 @@ public class RegisterActivity extends Activity {
                 }
             }).start();
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (change) {
+            LiveChat liveChat = (LiveChat) getApplicationContext();
+            liveChat.setAppState(getApplicationContext(),"closed");
+        }
+
+        super.onDestroy();
     }
 }

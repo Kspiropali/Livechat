@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+import edu.university.livechat.LiveChat;
 import edu.university.livechat.R;
 import edu.university.livechat.data.KeyStoreHelper;
 import edu.university.livechat.data.handlers.RequestTask;
@@ -34,7 +35,7 @@ import edu.university.livechat.ui.settings.SettingsPage;
 
 public class ChatPage extends Activity {
     // top level class variables
-    private KeyStoreHelper keyStoreHelper;
+    private String token;
     private LinearLayout messagesBox;
     private final RequestTask requestTask = new RequestTask();
     private String username;
@@ -45,12 +46,22 @@ public class ChatPage extends Activity {
     // global thread to help with requests
     private Thread mainThread;
 
+    // variable to help with let onDestroy know
+    // if the activity was finished intentionally
+    private boolean change;
+
+    private LiveChat liveChat;
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // set up activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_page);
+
+        // needed for onDestroy
+        change = true;
+        liveChat = (LiveChat) getApplicationContext();
 
         // data-bindings
         edu.university.livechat.databinding.ActivityChatPageBinding binding = ActivityChatPageBinding.inflate(getLayoutInflater());
@@ -70,8 +81,11 @@ public class ChatPage extends Activity {
         Intent settingsPage = new Intent(this, SettingsPage.class);
 
         // key store helper to get the token
-        keyStoreHelper = new KeyStoreHelper(getApplicationContext());
 
+        try(KeyStoreHelper keyStoreHelper = new KeyStoreHelper(getApplicationContext())){
+            token = keyStoreHelper.getLatestToken();
+        }
+        //token = keyStoreHelper.getLatestToken();
         // user and destination user
         username = getIntent().getStringExtra("username");
         destinationUser = getIntent().getStringExtra("destinationUser");
@@ -91,9 +105,9 @@ public class ChatPage extends Activity {
         mainThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(350);
+                    Thread.sleep(500);
                     // get the messages from the server
-                    ArrayList<Message> response = requestTask.downloadMessages(calculateRoomId(), keyStoreHelper.getLatestToken());
+                    ArrayList<Message> response = requestTask.downloadMessages(calculateRoomId(), token);
 
                     // if the response is null or the server is down, go back to login page
                     if (response == null || response.size() == 0) {
@@ -105,7 +119,9 @@ public class ChatPage extends Activity {
                         runOnUiThread(() -> {
                             //Toast.makeText(getApplicationContext(), "Server connection lost!", Toast.LENGTH_LONG).show();
                             startActivity(loginPage);
+                            change = false;
                             finish();
+                            mainThread.interrupt();
                         });
                     }
 
@@ -139,6 +155,7 @@ public class ChatPage extends Activity {
                             // if the server is down, go back to login page
 //                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                             startActivity(loginPage);
+                            change = false;
                             finish();
                         }
 
@@ -162,20 +179,13 @@ public class ChatPage extends Activity {
         // hide drawer
         drawer.setVisibility(View.GONE);
 
-        // getting all registered users in the system
+        // getting all registered users in the database
         getOnlineUsers();
 
         // setting up the current chatroom's history
         downloadSetMessageHistory();
 
         //////////////////////EVENT LISTENERS////////////////////////
-        // get settings button and set its listener
-        drawer.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                drawer.setVisibility(View.GONE);
-            }
-        });
-
         // get settings button and set its listener
         ImageView settingsButton = binding.topBarMenu.settingsImageButton;
         settingsButton.setOnClickListener(v -> {
@@ -193,8 +203,10 @@ public class ChatPage extends Activity {
         accountSettingsButton.setOnClickListener(v -> {
             // close drawer
             drawer.setVisibility(View.GONE);
+            settingsPage.putExtra("username", username);
             // go to account settings page
             startActivity(settingsPage);
+            change = false;
             finish();
         });
 
@@ -214,7 +226,10 @@ public class ChatPage extends Activity {
             drawer.setVisibility(View.GONE);
 
             // Delete token from database
-            keyStoreHelper.deleteAllTokens();
+            try (KeyStoreHelper keyStoreHelper = new KeyStoreHelper(getApplicationContext())){
+                keyStoreHelper.deleteAllTokens();
+            }
+            token = null;
 
             // clear the chat history
             messagesBox.removeAllViews();
@@ -225,6 +240,7 @@ public class ChatPage extends Activity {
 
             // return to login page
             startActivity(loginPage);
+            change = false;
             finish();
         });
 
@@ -235,9 +251,9 @@ public class ChatPage extends Activity {
             drawer.setVisibility(View.GONE);
             // if we are already in the public chatroom, no need to reload it
             if (destinationUser.equals("public")) {
+                change = true;
                 return;
             }
-
             // if we are not in public chatroom, go to public chatroom page
             chatPage.putExtra("username", username);
             chatPage.putExtra("destinationUser", "public");
@@ -245,6 +261,7 @@ public class ChatPage extends Activity {
             mainThread.interrupt();
             //start the new activity with the new destination user
             startActivity(chatPage);
+            change = false;
             finish();
         });
 
@@ -272,7 +289,7 @@ public class ChatPage extends Activity {
                     messageToSend.setDestination(calculateRoomId());
 
                     // send message to the server
-                    requestTask.sendMessage(keyStoreHelper.getLatestToken(), messageToSend);
+                    requestTask.sendMessage(token, messageToSend);
 
                     // add message to the chat history
                     runOnUiThread(() -> {
@@ -290,9 +307,15 @@ public class ChatPage extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        if (change) {
+            liveChat.setAppState(getApplicationContext(),"closed");
+        }
+
         // send SIGINT to the main thread, if activity is destroyed
         mainThread.interrupt();
+
+        super.onDestroy();
+
     }
 
     private void getOnlineUsers() {
@@ -300,7 +323,7 @@ public class ChatPage extends Activity {
         new Thread(() -> {
             try {
                 // send POST request to the server to get all registered users
-                String response = requestTask.getRegisteredUsers(keyStoreHelper.getLatestToken());
+                String response = requestTask.getRegisteredUsers(token);
 
                 // String is of type: ["bob","sam","john"], so we need to remove the [ and ] and split by ,
                 String[] users = response.substring(1, response.length() - 1).split(",");
@@ -320,6 +343,12 @@ public class ChatPage extends Activity {
                         // first close drawer
                         findViewById(R.id.nav_view).setVisibility(View.GONE);
 
+                        // we are already chatting with this user, no need to reload the activity
+                        if (destinationUser.equals(user)) {
+                            change = true;
+                            return;
+                        }
+
                         // pass the new username and destination user variables to the intent
                         chatPage.putExtra("username", username);
                         chatPage.putExtra("destinationUser", user);
@@ -329,6 +358,7 @@ public class ChatPage extends Activity {
 
                         // send SIGINT to the current activity's main thread
                         mainThread.interrupt();
+                        change = false;
                         finish();
                     });
                     // add the linear layout to the table
@@ -349,12 +379,12 @@ public class ChatPage extends Activity {
         new Thread(() -> {
             try {
                 // if key is null, user is not logged in
-                if (keyStoreHelper.getLatestToken() == null) {
+                if (token == null) {
                     return;
                 }
 
                 // send POST request to the server to get all messages between the users
-                ArrayList<Message> response = requestTask.downloadMessages(calculateRoomId(), keyStoreHelper.getLatestToken());
+                ArrayList<Message> response = requestTask.downloadMessages(calculateRoomId(), token);
 
                 // if its empty, return
                 if (response.isEmpty() || response.get(0).getType() == null) {
@@ -402,6 +432,5 @@ public class ChatPage extends Activity {
         // return the room id
         return users[0] + users[1];
     }
-
 
 }

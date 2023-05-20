@@ -51,6 +51,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'io.github.medyo:android-about-page:2.0.0'
 
+
     // needed for parsing of json
     implementation 'com.google.code.gson:gson:2.8.9'
 }

@@ -39,7 +39,7 @@ public class MessageTemplate extends ConstraintLayout {
                     myImage(message, timestamp, username);
                     break;
                 case "RECORDING":
-                    // TODO: create myRecording for logged in user
+                    myRecording(message, timestamp, username);
                     break;
             }
 
@@ -228,7 +228,6 @@ public class MessageTemplate extends ConstraintLayout {
         constraintSet.connect(messageCardView.getId(), ConstraintSet.TOP, messageDate.getId(), ConstraintSet.BOTTOM, 0);
 
         constraintSet.applyTo(this);
-
     }
 
     public void othersImage(String message, String timestamp, String otherUser) {
@@ -500,6 +499,109 @@ public class MessageTemplate extends ConstraintLayout {
         constraintSet.connect(cardView.getId(), ConstraintSet.TOP, messageDate.getId(), ConstraintSet.BOTTOM);
         constraintSet.connect(cardView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
         constraintSet.applyTo(this);
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void myRecording(String message, String timestamp, String myUsername) {
+        // Create TextView for message date
+        TextView messageDate = new TextView(context);
+        messageDate.setId(View.generateViewId());
+        messageDate.setText(timestamp);
+        messageDate.setTypeface(messageDate.getTypeface(), Typeface.BOLD);
+        messageDate.setTextColor(0xFF000000);
+        messageDate.setTextSize(17f);
+        messageDate.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
+        LayoutParams messageDateLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        messageDateLayoutParams.setMarginStart(dpToPx(-80));
+        messageDateLayoutParams.topToTop = LayoutParams.PARENT_ID;
+        messageDateLayoutParams.startToStart = LayoutParams.PARENT_ID;
+        messageDateLayoutParams.topMargin = dpToPx(4);
+        addView(messageDate, messageDateLayoutParams);
+
+        // Create CardView for message
+        CardView messageCardView = new CardView(context);
+        messageCardView.setId(View.generateViewId());
+        messageCardView.setCardBackgroundColor(0xFF774df2);
+        messageCardView.setRadius(dpToPx(12));
+        messageCardView.setCardElevation(0);
+        messageCardView.setPreventCornerOverlap(false);
+        messageCardView.setUseCompatPadding(true);
+        LayoutParams messageCardViewLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        messageCardViewLayoutParams.leftMargin = dpToPx(65);
+        messageCardViewLayoutParams.topToBottom = messageDate.getId();
+        messageCardViewLayoutParams.startToStart = LayoutParams.PARENT_ID;
+        addView(messageCardView, messageCardViewLayoutParams);
+
+        // create ImageView for user profile picture
+        ImageView userProfilePicture = new ImageView(context);
+        userProfilePicture.setId(View.generateViewId());
+        userProfilePicture.setImageResource(R.drawable.user);
+        LayoutParams userProfilePictureLayoutParams = new LayoutParams(dpToPx(30), dpToPx(30));
+        userProfilePictureLayoutParams.topToTop = LayoutParams.PARENT_ID;
+        userProfilePictureLayoutParams.startToStart = LayoutParams.PARENT_ID;
+        userProfilePictureLayoutParams.endToStart = messageCardView.getId();
+        userProfilePictureLayoutParams.topMargin = dpToPx(34);
+        this.addView(userProfilePicture, userProfilePictureLayoutParams);
+
+        // create TextView for user name
+        TextView userName = new TextView(context);
+        userName.setId(View.generateViewId());
+        userName.setText(myUsername);
+        userName.setTextColor(0xFF000000);
+        userName.setTextSize(17f);
+        userName.setTypeface(userName.getTypeface(), Typeface.BOLD);
+        userName.setGravity(Gravity.CENTER);
+        LayoutParams userNameLayoutParams = new LayoutParams(dpToPx(50), dpToPx(26));
+        userNameLayoutParams.endToStart = messageCardView.getId();
+        userNameLayoutParams.topToBottom = userProfilePicture.getId();
+        userNameLayoutParams.startToStart = LayoutParams.PARENT_ID;
+        this.addView(userName, userNameLayoutParams);
+
+        // Create LinearLayout for message text
+        LinearLayout messageLinearLayout = new LinearLayout(context);
+        messageLinearLayout.setId(View.generateViewId());
+        messageLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        messageCardView.addView(messageLinearLayout);
+
+        // Create button for audio
+        Button audioButton = new Button(context);
+        audioButton.setId(View.generateViewId());
+        audioButton.setText("Play audio");
+        audioButton.setGravity(Gravity.CENTER);
+        audioButton.setTextColor(0xFF4420c7);
+        audioButton.setTextSize(17f);
+        audioButton.setAllCaps(false);
+        audioButton.setPadding(dpToPx(10), dpToPx(10), dpToPx(10), dpToPx(10));
+        audioButton.setOnClickListener(v -> {
+            try {
+                // Create a MediaPlayer object from the decoded audio data
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                mediaPlayer.setDataSource(message);
+                mediaPlayer.prepareAsync();
+                mediaPlayer.setVolume(100f, 100f);
+                mediaPlayer.setLooping(false);
+                mediaPlayer.setOnPreparedListener(MediaPlayer::start);
+                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        LayoutParams audioButtonParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        audioButtonParams.topToTop = LayoutParams.PARENT_ID;
+        audioButtonParams.startToStart = LayoutParams.PARENT_ID;
+        audioButtonParams.bottomToBottom = LayoutParams.PARENT_ID;
+        messageLinearLayout.addView(audioButton, audioButtonParams);
+
+        // Create constraint set and apply constraints
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(this);
+        constraintSet.connect(messageDate.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, dpToPx(2));
+        constraintSet.connect(messageDate.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(45));
+        constraintSet.connect(messageCardView.getId(), ConstraintSet.TOP, messageDate.getId(), ConstraintSet.BOTTOM, 0);
+
+        constraintSet.applyTo(this);
+
+
     }
 
     private int dpToPx(int dp) {
