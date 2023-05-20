@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class KeyStoreHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "my_app_db";
+    private static final String DATABASE_NAME = "tokens.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_NAME = "tokens";
     private static final String COLUMN_TOKEN = "token";
@@ -43,26 +43,21 @@ public class KeyStoreHelper extends SQLiteOpenHelper {
             // SQLiteConstraintException
             // token is already in the database, no need to do anything
         }
-        db.close();
     }
 
     public String getLatestToken() {
         String token = null;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[]{COLUMN_TOKEN}, null, null, null, null, COLUMN_TIMESTAMP + " DESC", "1");
-        if (cursor != null && cursor.moveToFirst()) {
-            token = cursor.getString(0);
+        try (Cursor cursor = db.query(TABLE_NAME, new String[]{COLUMN_TOKEN}, null, null, null, null, COLUMN_TIMESTAMP + " DESC", "1")) {
+            if (cursor != null && cursor.moveToFirst()) {
+                token = cursor.getString(0);
+            }
         }
-        if (cursor != null) {
-            cursor.close();
-        }
-//        db.close();
         return token;
     }
 
     public void deleteAllTokens() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
-        db.close();
     }
 }
