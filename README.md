@@ -1,4 +1,4 @@
-# LiveChat for Android ![Build](https://github.com/Kspiropali/livechat/actions/workflows/build.yml/badge.svg)
+# LiveChat for Android [![Build](https://github.com/Kspiropali/livechat/actions/workflows/build.yml/badge.svg)](https://github.com/Kspiropali/Livechat/actions)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)]()
 
 This is a Livechat android app port as part of my Mobile Applications coursework. It features a simple chat interface with a list of agents and a chat window. The app is written in java and uses http requests to communicate with the Livechat API.
