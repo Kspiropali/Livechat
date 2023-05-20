@@ -1,5 +1,5 @@
 # LiveChat for Android
-[![Build Status](https://travis-ci.org/livechat/sample-app-android.svg?branch=master)](https://travis-ci.org/livechat/)
+[![Build Status](https://travis-ci.org/livechat/sample-app-android.svg?branch=master)](https://github.com/Kspiropali/livechat/actions/workflows/build.yml/badge.svg)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)]()
 
 This is a Livechat android app port as part of my Mobile Applications coursework. It features a simple chat interface with a list of agents and a chat window. The app is written in java and uses http requests to communicate with the Livechat API.
