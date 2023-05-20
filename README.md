@@ -25,7 +25,7 @@ This is a Livechat android app port as part of my Mobile Applications coursework
 - Sending/receiving emojis
 
 ## Release
-You can download the latest apk release in the [releases]() page.
+You can download the latest apk release in the [releases](https://github.com/Kspiropali/Livechat/releases) page.
 The release will only work for local networks, as the server is not hosted anywhere.
 
 ## License
