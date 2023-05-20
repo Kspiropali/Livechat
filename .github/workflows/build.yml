@@ -28,4 +28,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: livechat
-          path: build/libs/*.jar
+          path: app/build/outputs/apk/debug/app-debug.apk
